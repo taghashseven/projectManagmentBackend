@@ -88,23 +88,28 @@ const updateProject = async (req, res) => {
 // @desc    Delete project
 // @route   DELETE /api/projects/:id
 // @access  Private
-const deleteProject =async (req, res) => {
-  const project = await Project.findById(req.params.id);
 
-  if (!project) {
-    res.status(404);
-    throw new Error('Project not found');
+const deleteProject = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Check if user is owner
+    if (!project.owner.equals(req.user._id)) {
+      return res.status(401).json({ message: 'Not authorized to delete this project' });
+    }
+
+    await project.removeProject();
+    res.status(200).json({ message: 'Project removed' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
+};
 
-  // Check if user is owner
-  if (!project.owner.equals(req.user._id)) {
-    res.status(401);
-    throw new Error('Not authorized to delete this project');
-  }
-
-  await project.remove();
-  res.json({ message: 'Project removed' });
-}
 
 // @desc    Add team member to project
 // @route   POST /api/projects/:id/team

@@ -1,32 +1,30 @@
+// src/config/db.js
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const MONGO_URI = process.env.MONGODB_URI;
+let isConnected = false;
 
-// Blocking MongoDB connection
-try {
-  await mongoose.connect(process.env.MONGODB_URI, {
+export async function connectDB() {
+  if (isConnected) return;
+  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/project';
+  await mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
-  console.log('✅ Connected to MongoDB (blocking)');
-} catch (err) {
-  console.error('❌ Failed to connect to MongoDB', err);
-  process.exit(1);
+  isConnected = true;
 }
 
-
-// Disconnect from MongoDB
-async function disconnectDB() {
-    try {
-      await mongoose.disconnect();
-      console.log('✅ MongoDB disconnected');
-    } catch (err) {
-      console.error('❌ MongoDB disconnection error', err);
-      process.exit(1);
-    }
+export async function disconnectDB() {
+  if (!isConnected) return;
+  await mongoose.disconnect();
+  isConnected = false;
 }
 
-export default mongoose;
-export { disconnectDB };
+export async function clearDB() {
+  if (!isConnected) return;
+  const collections = mongoose.connection.collections;
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
+}

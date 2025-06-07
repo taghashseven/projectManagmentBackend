@@ -1,0 +1,52 @@
+import mongoose from 'mongoose';
+import User from '../models/User.js';  // adjust the path if needed
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const users = [
+  { name: 'Jonah', email: 'jonah@zchpc.ac.zw', password: 'root@123' },
+  { name: 'Sharon', email: 'sharon@zchpc.ac.zw', password: 'root@123' },
+  { name: 'Tapis', email: 'tapis@zchpc.ac.zw', password: 'root@123' },
+  { name: 'Kelvin', email: 'kelvin@zchpc.ac.zw', password: 'root@123' },
+  { name: 'ZCHPC', email: 'zchpc@zchpc.ac.zw', password: 'root@123' },
+];
+
+async function seedUsers() {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log('MongoDB connected');
+
+    // Clear existing users if you want to start fresh
+    await User.deleteMany({});
+
+    // Hash passwords before saving users
+    for (const userData of users) {
+    //   const salt = await bcrypt.genSalt(10);
+    //   const hashedPassword = await bcrypt.hash(userData.password, salt);
+
+      const user = new User({
+        name: userData.name,
+        email: userData.email,
+        // password: hashedPassword,
+        password: userData.password,
+      });
+
+      await user.save();
+      console.log(`User created: ${user.email}`);
+    }
+
+    console.log('User seeding complete');
+    process.exit();
+
+  } catch (error) {
+    console.error('Error seeding users:', error);
+    process.exit(1);
+  }
+}
+
+seedUsers();
