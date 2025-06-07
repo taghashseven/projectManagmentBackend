@@ -26,6 +26,12 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/', routes);
 
+
+// hello world
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
+
 app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes);
 app.use('/resources', resourceRoutes);
@@ -42,7 +48,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`🚀 Server is running on http://localhost:${port}`);
-});
+
+export default app 
