@@ -1,0 +1,43 @@
+
+@api=http://localhost:3000
+
+GET /api/v1/users
+
+
+####### projects 
+
+GET {{api}}/projects
+
+
+
+
+#### auth 
+
+POST {{api}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "mudzingwajonah@gmail.com",
+    "password": "password",
+    "name":"jonah"
+}
+
+
+
+#### login 
+
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "mudzingwajonah@gmail.com",
+    "password": "password"
+}
+
+
+
+#### get profile 
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NDI5ZGE3ODFlZjc4ZjQ2NzE4MDI2NyIsImlhdCI6MTc0OTIzODgyOSwiZXhwIjoxNzUxODMwODI5fQ.PBniOveSXU-lEEuXPQKm0ABmL0SI4mPhm76Ujz9CD5Q
+
+GET {{api}}/auth/profile
+Authorization: Bearer {{token}}

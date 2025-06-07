@@ -1,0 +1,74 @@
+### Project Endpoints
+
+
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NDI5ZGE3ODFlZjc4ZjQ2NzE4MDI2NyIsImlhdCI6MTc0OTIzODgyOSwiZXhwIjoxNzUxODMwODI5fQ.PBniOveSXU-lEEuXPQKm0ABmL0SI4mPhm76Ujz9CD5Q
+
+@api=http://localhost:3000
+
+#### Create new project
+POST {{api}}/projects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "New Project",
+  "description": "This is a test project",
+  "startDate": "2023-06-01",
+  "team": []
+}
+
+#### Get all projects (for current user)
+GET {{api}}/projects
+Authorization: Bearer {{token}}
+
+#### Get single project
+GET {{api}}/projects/684345dcf845d76aea2361d4
+Authorization: Bearer {{token}}
+
+#### Update project
+PUT {{api}}/projects/684345dcf845d76aea2361d4
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Updated Project Name",
+  "description": "Updated description",
+  "status": "in-progress"
+}
+
+#### Delete project
+DELETE {{api}}/projects/684345dcf845d76aea2361d4
+Authorization: Bearer {{token}}
+
+### Team Management Endpoints
+
+#### Add team member
+POST {{api}}/projects/123abc/team
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": "456def"
+}
+
+#### Remove team member
+DELETE {{api}}/projects/123abc/team/456def
+Authorization: Bearer {{token}}
+
+### Additional Useful Endpoints
+
+#### Get all users (if available)
+GET {{api}}/users
+Authorization: Bearer {{token}}
+
+#### Filter projects by status
+GET {{api}}/projects?status=in-progress
+Authorization: Bearer {{token}}
+
+#### Search projects
+GET {{api}}/projects?search=important
+Authorization: Bearer {{token}}
+
+#### Get projects where user is team member (not owner)
+GET {{api}}/projects/team
+Authorization: Bearer {{token}}
