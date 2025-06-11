@@ -14,7 +14,7 @@ const users = [
 
 async function seedUsers() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect("mongodb://localhost:27017/project", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
