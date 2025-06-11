@@ -7,6 +7,7 @@ import resourceRoutes from './routes/resourceRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import "./config/db.js";
 import cors from 'cors';
+import requestLogger from './middleware/loggerMidleware.js';
 
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(cors());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(requestLogger);
 
 
 

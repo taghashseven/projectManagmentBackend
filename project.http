@@ -72,3 +72,6 @@ Authorization: Bearer {{token}}
 #### Get projects where user is team member (not owner)
 GET {{api}}/projects/team
 Authorization: Bearer {{token}}
+
+
+### should 

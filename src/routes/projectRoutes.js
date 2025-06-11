@@ -1,31 +1,69 @@
-import  express from 'express';
+import express from 'express';
 const router = express.Router();
-import  {
+
+import {
   createProject,
   getProjects,
   getProjectById,
   updateProject,
   deleteProject,
   addTeamMember,
-  removeTeamMember
-} from '../controllers/projectController.js' ;
+  removeTeamMember,
+  putTask,
+  deleteTask,
+  addResource,
+  deleteResource
+} from '../controllers/projectController.js';
 
-import  { protect } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
 
-router.route('/')
-  .post(protect, createProject)
-  .get(protect, getProjects);
+// Base project routes
+router
+  .route('/')
+  .all(protect)
+  .get(getProjects)
+  .post(createProject);
 
-router.route('/:id')
-  .get(protect, getProjectById)
-  .put(protect, updateProject)
-  .delete(protect, deleteProject);
+// Single project routes
+router
+  .route('/:id')
+  .all(protect)
+  .get(getProjectById)
+  .put(updateProject)
+  .delete(deleteProject);
 
-router.route('/:id/team')
-  .post(protect, addTeamMember);
+// Team routes
+router
+  .route('/:id/team')
+  .all(protect)
+  .post(addTeamMember);
 
-router.route('/:id/team/:userId')
-  .delete(protect, removeTeamMember);
+router
+  .route('/:id/team/:userId')
+  .all(protect)
+  .delete(removeTeamMember);
 
+// Task routes
+router
+  .route('/:projectId/tasks')
+  .all(protect)
+  .put(putTask);
+
+
+router
+  .route('/:projectId/tasks/:taskId')
+  .all(protect)
+  .delete(deleteTask);
+
+  // Resource routes
+router
+.route('/:projectId/resources')
+.all(protect)
+.post(addResource);
+
+router
+.route('/:projectId/resources/:resourceId')
+.all(protect)
+.delete(deleteResource);
 
 export default router;

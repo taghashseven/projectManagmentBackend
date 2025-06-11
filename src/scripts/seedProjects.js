@@ -1,294 +1,348 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import Project from '../models/Project.js';
 import User from '../models/User.js';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI;
-
-const seedProjects = async () => {
+async function seedProjects() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('MongoDB Connected');
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
-    const users = await User.find();
-    console.log(users);
-    if (users.length < 4) throw new Error('At least 4 users are required to seed projects.');
+    console.log('MongoDB connected for project seeding');
 
-    const [jonah, sharon, tapis, kelvin] = users;
+    // Clear existing projects if you want to start fresh
+    await Project.deleteMany({});
+    console.log('Cleared existing projects');
 
-    const projects = [
-      // Infrastructure Projects (8)
+    // Get users to assign as owners, team members, and resource creators
+    const users = await User.find({});
+    if (users.length === 0) {
+      throw new Error('No users found in database. Seed users first.');
+    }
+
+    // Current date and future dates for project timelines
+    const now = new Date();
+    const futureDate = new Date();
+    futureDate.setMonth(now.getMonth() + 3); // 3 months from now
+
+    const projectsData = [
       {
-        name: 'Data Center Virtualization',
-        description: 'Migrate physical servers to VMs for better scalability and management.',
+        name: 'DNS Automation',
+        description: 'Automate DNS record management for ZCHPC infrastructure',
         status: 'in-progress',
-        startDate: new Date('2024-12-01'),
-        endDate: new Date('2025-06-30'),
-        owner: jonah._id,
-        team: [sharon._id, tapis._id]
+        startDate: now,
+        endDate: futureDate,
+        tasks: [
+          {
+            title: 'Research DNS automation tools',
+            description: 'Evaluate tools like PowerDNS, Knot DNS, and others',
+            status: 'done',
+            weight: 3,
+            priority: 'high'
+          },
+          {
+            title: 'Implement API endpoints',
+            description: 'Create REST API for DNS management',
+            status: 'in-progress',
+            weight: 5,
+            priority: 'high'
+          }
+        ],
+        resources: [
+          {
+            name: 'PowerDNS Documentation',
+            type: 'link',
+            url: 'https://doc.powerdns.com/',
+            description: 'Official PowerDNS documentation'
+          }
+        ]
       },
       {
-        name: 'Multi-Zone Kubernetes Cluster',
-        description: 'Deploy a fault-tolerant Kubernetes cluster across three availability zones.',
+        name: 'Xen Orchestra Customization',
+        description: 'Customize Xen Orchestra for ZCHPC needs',
         status: 'in-progress',
-        startDate: new Date('2025-02-15'),
-        endDate: new Date('2025-08-15'),
-        owner: jonah._id,
-        team: [kelvin._id, tapis._id]
+        startDate: now,
+        endDate: futureDate,
+        tasks: [
+          {
+            title: 'Implement full screen mode',
+            description: 'Customize Xen Orchestra for full screen operation',
+            status: 'todo',
+            weight: 2,
+            priority: 'medium'
+          },
+          {
+            title: 'Self-service registration',
+            description: 'Allow users to self-register for VM access',
+            status: 'todo',
+            weight: 4,
+            priority: 'high'
+          }
+        ],
+        resources: [
+          {
+            name: 'Xen Orchestra GitHub',
+            type: 'link',
+            url: 'https://github.com/vatesfr/xen-orchestra',
+            description: 'Xen Orchestra source code'
+          }
+        ]
       },
       {
-        name: 'Disaster Recovery Site Setup',
-        description: 'Establish a warm disaster recovery site 500 miles from primary data center.',
+        name: 'CP Automation Self Service',
+        description: 'Create self-service portal for CP automation',
         status: 'not-started',
-        startDate: new Date('2025-09-01'),
-        endDate: new Date('2026-01-31'),
-        owner: sharon._id,
-        team: [jonah._id]
+        startDate: new Date(now.setMonth(now.getMonth() + 1)),
+        tasks: [
+          {
+            title: 'Design user interface',
+            description: 'Create mockups for self-service portal',
+            status: 'todo',
+            weight: 3,
+            priority: 'medium'
+          }
+        ]
       },
       {
-        name: 'Network Segmentation Overhaul',
-        description: 'Implement zero-trust network architecture with micro-segmentation.',
+        name: 'Mail Customization',
+        description: 'Customize mail server configuration for ZCHPC',
+        status: 'not-started',
+        startDate: new Date(now.setMonth(now.getMonth() + 2)),
+        tasks: [
+          {
+            title: 'Evaluate mail server options',
+            description: 'Compare Postfix, Exim, and others',
+            status: 'todo',
+            weight: 4,
+            priority: 'medium'
+          }
+        ]
+      },
+      {
+        name: 'Virtual Labs',
+        description: 'Implement virtual lab environment for researchers',
         status: 'on-hold',
-        startDate: new Date('2025-03-01'),
-        endDate: new Date('2025-07-01'),
-        owner: tapis._id,
-        team: [sharon._id]
+        startDate: new Date(now.setMonth(now.getMonth() - 1)),
+        tasks: [
+          {
+            title: 'Hardware provisioning',
+            description: 'Allocate servers for virtual labs',
+            status: 'in-progress',
+            weight: 6,
+            priority: 'high'
+          }
+        ]
       },
- 
       {
-        name: 'IPv6 Migration',
-        description: 'Full transition from IPv4 to IPv6 across all network infrastructure.',
+        name: 'Server Mirroring',
+        description: 'Implement server mirroring for high availability',
         status: 'in-progress',
-        startDate: new Date('2025-01-10'),
-        endDate: new Date('2025-12-10'),
-        owner: sharon._id,
-        team: [tapis._id, kelvin._id]
+        startDate: now,
+        tasks: [
+          {
+            title: 'Configure DRBD',
+            description: 'Set up DRBD for block-level replication',
+            status: 'in-progress',
+            weight: 5,
+            priority: 'critical'
+          }
+        ]
       },
       {
-        name: 'Edge Computing Deployment',
-        description: 'Deploy micro data centers in 5 regional locations for low-latency processing.',
+        name: 'Drive OnlyOffice Customization',
+        description: 'Customize OnlyOffice integration with Nextcloud',
         status: 'not-started',
-        startDate: new Date('2026-03-01'),
-        endDate: new Date('2026-09-01'),
-        owner: jonah._id,
-        team: [sharon._id, kelvin._id]
+        startDate: futureDate,
+        tasks: [
+          {
+            title: 'Test OnlyOffice integration',
+            description: 'Verify document editing functionality',
+            status: 'todo',
+            weight: 2,
+            priority: 'medium'
+          }
+        ]
       },
       {
-        name: 'Hyperconverged Infrastructure',
-        description: 'Replace traditional servers with hyperconverged infrastructure nodes.',
-        status: 'completed',
-        startDate: new Date('2024-07-01'),
-        endDate: new Date('2024-11-30'),
-        owner: kelvin._id,
-        team: [jonah._id, sharon._id]
+        name: 'Backup System',
+        description: 'Implement comprehensive backup solution',
+        status: 'in-progress',
+        startDate: now,
+        tasks: [
+          {
+            title: 'Evaluate backup tools',
+            description: 'Compare Borg, Restic, Duplicacy',
+            status: 'done',
+            weight: 3,
+            priority: 'high'
+          },
+          {
+            title: 'Implement backup schedule',
+            description: 'Set up regular backup jobs',
+            status: 'in-progress',
+            weight: 4,
+            priority: 'high'
+          }
+        ]
       },
-
-      // Development Projects (8)
       {
-        name: 'Client Billing Automation',
-        description: 'Develop a system to auto-bill clients based on VM usage and storage.',
+        name: 'Network Monitoring',
+        description: 'Implement comprehensive network monitoring',
+        status: 'in-progress',
+        startDate: now,
+        tasks: [
+          {
+            title: 'Deploy monitoring agents',
+            description: 'Install on all critical network devices',
+            status: 'in-progress',
+            weight: 5,
+            priority: 'high'
+          }
+        ]
+      },
+      {
+        name: 'Power Monitoring',
+        description: 'Implement power usage monitoring system',
         status: 'not-started',
-        startDate: new Date('2025-07-01'),
-        endDate: new Date('2025-10-01'),
-        owner: sharon._id,
-        team: [jonah._id, kelvin._id]
+        startDate: futureDate
       },
       {
-        name: 'Internal Developer Platform',
-        description: 'Build a self-service platform for developers to provision resources.',
-        status: 'in-progress',
-        startDate: new Date('2025-04-01'),
-        endDate: new Date('2025-10-31'),
-        owner: tapis._id,
-        team: [kelvin._id, sharon._id]
-      },
-      {
-        name: 'API Gateway Redesign',
-        description: 'Implement Kong API gateway with improved rate limiting and analytics.',
-        status: 'on-hold',
-        startDate: new Date('2025-05-15'),
-        endDate: new Date('2025-08-15'),
-        owner: jonah._id,
-        team: [tapis._id]
-      },
-      {
-        name: 'Microservices Log Aggregation',
-        description: 'Centralized logging solution for 50+ microservices with Elasticsearch.',
-        status: 'in-progress',
-        startDate: new Date('2025-03-20'),
-        endDate: new Date('2025-07-20'),
-        owner: sharon._id,
-        team: [kelvin._id]
-      },
-      {
-        name: 'CI/CD Pipeline Optimization',
-        description: 'Reduce build times by 40% through parallelization and caching.',
-        status: 'in-progress',
-        startDate: new Date('2025-08-15'),
-        endDate: new Date('2025-11-30'),
-        owner: kelvin._id,
-        team: [jonah._id, tapis._id]
-      },
-      {
-        name: 'Technical Debt Reduction Sprint',
-        description: 'Two-week focused effort to address accumulated technical debt.',
+        name: 'eSight Implementation',
+        description: 'Deploy Huawei eSight for network management',
         status: 'not-started',
-        startDate: new Date('2025-09-01'),
-        endDate: new Date('2025-09-15'),
-        owner: tapis._id,
-        team: [sharon._id, jonah._id, kelvin._id]
+        startDate: futureDate
       },
       {
-        name: 'Feature Flag Management System',
-        description: 'Implement a robust system for gradual feature rollouts and quick rollbacks.',
-        status: 'completed',
-        startDate: new Date('2024-10-01'),
-        endDate: new Date('2024-12-15'),
-        owner: sharon._id,
-        team: [kelvin._id]
-      },
-      {
-        name: 'Documentation Automation',
-        description: 'Generate API documentation automatically from OpenAPI specs.',
-        status: 'in-progress',
-        startDate: new Date('2025-02-01'),
-        endDate: new Date('2025-05-31'),
-        owner: jonah._id,
-        team: [tapis._id]
-      },
-
-      // Monitoring & Security (7)
-      {
-        name: 'System Monitoring Dashboard',
-        description: 'Develop a Vite-based UI to visualize server resource usage in real-time.',
-        status: 'in-progress',
-        startDate: new Date('2025-03-01'),
-        endDate: new Date('2025-07-01'),
-        owner: sharon._id,
-        team: [kelvin._id, tapis._id]
-      },
-      {
-        name: 'SIEM Implementation',
-        description: 'Deploy Splunk for security information and event management.',
-        status: 'completed',
-        startDate: new Date('2025-11-01'),
-        endDate: new Date('2026-02-28'),
-        owner: kelvin._id,
-        team: [jonah._id]
-      },
-      {
-        name: 'Container Security Scanning',
-        description: 'Integrate Trivy into CI pipeline to scan container images for vulnerabilities.',
-        status: 'in-progress',
-        startDate: new Date('2025-04-10'),
-        endDate: new Date('2025-06-30'),
-        owner: tapis._id,
-        team: [sharon._id]
-      },
-      {
-        name: 'DDoS Protection Enhancement',
-        description: 'Upgrade network infrastructure to mitigate larger volumetric attacks.',
+        name: 'Generator Integration',
+        description: 'Integrate generator with monitoring system',
         status: 'not-started',
-        startDate: new Date('2025-12-01'),
-        endDate: new Date('2026-03-31'),
-        owner: jonah._id,
-        team: [kelvin._id, tapis._id]
+        startDate: futureDate
       },
       {
-        name: 'Certificate Automation',
-        description: 'Implement automated TLS certificate renewal with HashiCorp Vault.',
-        status: 'completed',
-        startDate: new Date('2024-08-01'),
-        endDate: new Date('2024-10-31'),
-        owner: sharon._id,
-        team: [jonah._id]
-      },
-     
-      {
-        name: 'Passwordless Authentication',
-        description: 'Implement FIDO2 security keys for all internal systems.',
-        status: 'in-progress',
-        startDate: new Date('2025-05-01'),
-        endDate: new Date('2025-08-31'),
-        owner: tapis._id,
-        team: [jonah._id]
-      },
-
-      // Specialized Projects (7)
-      {
-        name: 'GPU Resource Scheduler',
-        description: 'Build an allocator for Tesla V100 and H200 PCIe resources across VMs.',
-        status: 'on-hold',
-        startDate: new Date('2025-05-01'),
-        endDate: new Date('2025-09-01'),
-        owner: jonah._id,
-        team: [kelvin._id]
-      },
-      {
-        name: 'Telemedicine Platform Deployment',
-        description: 'Setup multi-node Linux environment for high-availability telemedicine app.',
+        name: 'Camera Integration',
+        description: 'Integrate security cameras with central system',
         status: 'not-started',
-        startDate: new Date('2025-08-01'),
-        endDate: new Date('2025-11-30'),
-        owner: tapis._id,
-        team: [jonah._id, kelvin._id]
+        startDate: futureDate
       },
       {
-        name: 'AI Training Cluster',
-        description: 'Stand up dedicated Kubernetes cluster for ML training workloads.',
+        name: 'CLUTTER with Open OnDemand',
+        description: 'Implement Open OnDemand for CLUTTER cluster',
         status: 'in-progress',
-        startDate: new Date('2025-06-01'),
-        endDate: new Date('2025-10-31'),
-        owner: kelvin._id,
-        team: [sharon._id]
+        startDate: now,
+        tasks: [
+          {
+            title: 'Install Open OnDemand',
+            description: 'Deploy on cluster head node',
+            status: 'in-progress',
+            weight: 5,
+            priority: 'high'
+          }
+        ]
       },
       {
-        name: 'Blockchain Node Infrastructure',
-        description: 'Deploy and maintain Ethereum archive nodes for financial applications.',
-        status: 'completed',
-        startDate: new Date('2026-01-01'),
-        endDate: new Date('2026-04-30'),
-        owner: sharon._id,
-        team: [tapis._id]
-      },
-      {
-        name: 'High-Frequency Trading Network',
-        description: 'Optimize network stack for sub-microsecond latency trading system.',
-        status: 'completed',
-        startDate: new Date('2024-09-01'),
-        endDate: new Date('2024-12-15'),
-        owner: jonah._id,
-        team: [kelvin._id, tapis._id]
-      },
-      {
-        name: 'IoT Device Management Platform',
-        description: 'Build scalable infrastructure to manage 100,000+ IoT devices.',
-        status: 'in-progress',
-        startDate: new Date('2025-04-15'),
-        endDate: new Date('2025-09-15'),
-        owner: tapis._id,
-        team: [sharon._id, jonah._id]
-      },
-      {
-        name: 'AR/VR Rendering Farm',
-        description: 'Deploy GPU servers for cloud-based AR/VR content rendering.',
+        name: 'Odoo Implementation',
+        description: 'Deploy Odoo ERP for ZCHPC',
         status: 'not-started',
-        startDate: new Date('2026-02-01'),
-        endDate: new Date('2026-06-30'),
-        owner: kelvin._id,
-        team: [jonah._id]
+        startDate: futureDate
+      },
+      {
+        name: 'Moodle Deployment',
+        description: 'Deploy Moodle learning management system',
+        status: 'not-started',
+        startDate: futureDate
+      },
+      {
+        name: 'BigBlueButton Deployment',
+        description: 'Deploy BigBlueButton for video conferencing',
+        status: 'not-started',
+        startDate: futureDate
+      },
+      {
+        name: 'Zabbix Deployment',
+        description: 'Deploy Zabbix for infrastructure monitoring',
+        status: 'in-progress',
+        startDate: now,
+        tasks: [
+          {
+            title: 'Install Zabbix server',
+            description: 'Set up central Zabbix server',
+            status: 'done',
+            weight: 3,
+            priority: 'high'
+          },
+          {
+            title: 'Configure monitoring templates',
+            description: 'Create templates for different device types',
+            status: 'in-progress',
+            weight: 4,
+            priority: 'high'
+          }
+        ]
       }
     ];
 
-    await Project.insertMany(projects);
-    console.log('✅ 30 Realistic Projects Seeded');
+    // Create projects
+    for (const projectData of projectsData) {
+      // Assign random owner and team members
+      const owner = users[Math.floor(Math.random() * users.length)];
+      const teamSize = Math.min(3, users.length - 1);
+      const team = [];
+      
+      for (let i = 0; i < teamSize; i++) {
+        const randomUser = users[Math.floor(Math.random() * users.length)];
+        if (randomUser._id.toString() !== owner._id.toString() && !team.includes(randomUser._id)) {
+          team.push(randomUser._id);
+        }
+      }
+
+      // Assign tasks to random users
+      if (projectData.tasks) {
+        projectData.tasks.forEach(task => {
+          if (Math.random() > 0.5) {
+            const assignees = [];
+            const numAssignees = Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < numAssignees; i++) {
+              const randomUser = users[Math.floor(Math.random() * users.length)];
+              if (!assignees.includes(randomUser._id)) {
+                assignees.push(randomUser._id);
+              }
+            }
+            task.assignedTo = assignees;
+          }
+        });
+      }
+
+      // Assign createdBy to resources
+      if (projectData.resources) {
+        projectData.resources = projectData.resources.map(resource => ({
+          ...resource,
+          createdBy: owner._id // Using project owner as resource creator
+        }));
+      }
+
+      const project = new Project({
+        ...projectData,
+        owner: owner._id,
+        team: team
+      });
+
+      await project.save();
+      console.log(`Project created: ${project.name}`);
+    }
+
+    console.log('Project seeding complete');
+    mongoose.connection.close();
     process.exit();
-  } catch (err) {
-    console.error(err);
+
+  } catch (error) {
+    console.error('Error seeding projects:', error);
+    mongoose.connection.close();
     process.exit(1);
   }
-};
+}
 
 seedProjects();

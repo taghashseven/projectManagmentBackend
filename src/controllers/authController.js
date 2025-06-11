@@ -75,8 +75,21 @@ const getUserProfile = async (req, res) => {
   }
 }
 
+// @desc    Get all users
+// @route   GET /api/auth/users
+// @access  Private/Admin
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password'); // Exclude passwords from the response
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
 export {
   authUser,
   registerUser,
-  getUserProfile
+  getUserProfile ,
+  getUsers
 };
