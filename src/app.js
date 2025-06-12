@@ -24,15 +24,15 @@ app.use(requestLogger);
 
 
 
+// hello world
+app.get('/hello', (req, res) => {
+  res.send('Hello, World!');
+});
 
 // Routes
 app.use('/', routes);
 
 
-// hello world
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
 
 app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes);

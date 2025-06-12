@@ -5,11 +5,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const users = [
-  { name: 'Jonah', email: 'jonah@zchpc.ac.zw', password: 'root@123' },
-  { name: 'Sharon', email: 'sharon@zchpc.ac.zw', password: 'root@123' },
-  { name: 'Tapis', email: 'tapis@zchpc.ac.zw', password: 'root@123' },
-  { name: 'Kelvin', email: 'kelvin@zchpc.ac.zw', password: 'root@123' },
-  { name: 'ZCHPC', email: 'zchpc@zchpc.ac.zw', password: 'root@123' },
+  { name: 'Jonah', email: 'jmudzingwa@zchpc.ac.zw', password: 'user@123' },
+  { name: 'Sharon', email: 'sjakarasi@zchpc.ac.zw', password: 'user@123' },
+  { name: 'Zimunhu', email: 'tzimunhu@zchpc.ac.zw', password: 'user@123' },
+  { name: 'kevin', email: 'kshumba@zchpc.ac.zw', password: 'user@123' },
+  { name: 'ZCHPC', email: 'zchpc@zchpc.ac.zw', password: 'user@123' },
+  {name : "admin" ,email : "admin@zchpc.ac.zw" , password : "user@123"}
 ];
 
 async function seedUsers() {

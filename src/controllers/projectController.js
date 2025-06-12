@@ -29,7 +29,7 @@ const getProjects = async (req, res) => {
     ]
   })
   .populate('owner', 'name email avatar')
-  .populate('team', 'name email avatar')
+.populate('team', 'name email avatar')
   .sort('-createdAt');
 
   res.json(projects);
