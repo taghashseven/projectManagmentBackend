@@ -7,7 +7,7 @@ dotenv.config();
 
 async function seedProjects() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/project", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -26,8 +26,14 @@ async function seedProjects() {
 
     // Current date and future dates for project timelines
     const now = new Date();
-    const futureDate = new Date();
-    futureDate.setMonth(now.getMonth() + 3); // 3 months from now
+    const futureDate1 = new Date();
+    futureDate1.setMonth(now.getMonth() + 1);
+    const futureDate2 = new Date();
+    futureDate2.setMonth(now.getMonth() + 2);
+    const futureDate3 = new Date();
+    futureDate3.setMonth(now.getMonth() + 3);
+    const pastDate = new Date();
+    pastDate.setMonth(now.getMonth() - 1);
 
     const projectsData = [
       {
@@ -35,7 +41,7 @@ async function seedProjects() {
         description: 'Automate DNS record management for ZCHPC infrastructure',
         status: 'in-progress',
         startDate: now,
-        endDate: futureDate,
+        endDate: futureDate3,
         tasks: [
           {
             title: 'Research DNS automation tools',
@@ -66,7 +72,7 @@ async function seedProjects() {
         description: 'Customize Xen Orchestra for ZCHPC needs',
         status: 'in-progress',
         startDate: now,
-        endDate: futureDate,
+        endDate: futureDate3,
         tasks: [
           {
             title: 'Implement full screen mode',
@@ -96,7 +102,7 @@ async function seedProjects() {
         name: 'CP Automation Self Service',
         description: 'Create self-service portal for CP automation',
         status: 'not-started',
-        startDate: new Date(now.setMonth(now.getMonth() + 1)),
+        startDate: futureDate1,
         tasks: [
           {
             title: 'Design user interface',
@@ -111,7 +117,7 @@ async function seedProjects() {
         name: 'Mail Customization',
         description: 'Customize mail server configuration for ZCHPC',
         status: 'not-started',
-        startDate: new Date(now.setMonth(now.getMonth() + 2)),
+        startDate: futureDate2,
         tasks: [
           {
             title: 'Evaluate mail server options',
@@ -126,7 +132,7 @@ async function seedProjects() {
         name: 'Virtual Labs',
         description: 'Implement virtual lab environment for researchers',
         status: 'on-hold',
-        startDate: new Date(now.setMonth(now.getMonth() - 1)),
+        startDate: pastDate,
         tasks: [
           {
             title: 'Hardware provisioning',
@@ -156,7 +162,7 @@ async function seedProjects() {
         name: 'Drive OnlyOffice Customization',
         description: 'Customize OnlyOffice integration with Nextcloud',
         status: 'not-started',
-        startDate: futureDate,
+        startDate: futureDate3,
         tasks: [
           {
             title: 'Test OnlyOffice integration',
@@ -208,25 +214,25 @@ async function seedProjects() {
         name: 'Power Monitoring',
         description: 'Implement power usage monitoring system',
         status: 'not-started',
-        startDate: futureDate
+        startDate: futureDate3
       },
       {
         name: 'eSight Implementation',
         description: 'Deploy Huawei eSight for network management',
         status: 'not-started',
-        startDate: futureDate
+        startDate: futureDate3
       },
       {
         name: 'Generator Integration',
         description: 'Integrate generator with monitoring system',
         status: 'not-started',
-        startDate: futureDate
+        startDate: futureDate3
       },
       {
         name: 'Camera Integration',
         description: 'Integrate security cameras with central system',
         status: 'not-started',
-        startDate: futureDate
+        startDate: futureDate3
       },
       {
         name: 'CLUTTER with Open OnDemand',
@@ -247,19 +253,19 @@ async function seedProjects() {
         name: 'Odoo Implementation',
         description: 'Deploy Odoo ERP for ZCHPC',
         status: 'not-started',
-        startDate: futureDate
+        startDate: futureDate3
       },
       {
         name: 'Moodle Deployment',
         description: 'Deploy Moodle learning management system',
         status: 'not-started',
-        startDate: futureDate
+        startDate: futureDate3
       },
       {
         name: 'BigBlueButton Deployment',
         description: 'Deploy BigBlueButton for video conferencing',
         status: 'not-started',
-        startDate: futureDate
+        startDate: futureDate3
       },
       {
         name: 'Zabbix Deployment',
@@ -285,62 +291,69 @@ async function seedProjects() {
       }
     ];
 
-    // Create projects
+    // Create projects with error handling for each
     for (const projectData of projectsData) {
-      // Assign random owner and team members
-      const owner = users[Math.floor(Math.random() * users.length)];
-      const teamSize = Math.min(3, users.length - 1);
-      const team = [];
-      
-      for (let i = 0; i < teamSize; i++) {
-        const randomUser = users[Math.floor(Math.random() * users.length)];
-        if (randomUser._id.toString() !== owner._id.toString() && !team.includes(randomUser._id)) {
-          team.push(randomUser._id);
+      try {
+        // Assign random owner and team members
+        const owner = users[Math.floor(Math.random() * users.length)];
+        const teamSize = Math.min(3, users.length - 1);
+        const team = [];
+        
+        // Add unique team members (excluding owner)
+        const potentialTeamMembers = users.filter(user => user._id.toString() !== owner._id.toString());
+        for (let i = 0; i < Math.min(teamSize, potentialTeamMembers.length); i++) {
+          const randomIndex = Math.floor(Math.random() * potentialTeamMembers.length);
+          team.push(potentialTeamMembers[randomIndex]._id);
+          // Remove selected user to avoid duplicates
+          potentialTeamMembers.splice(randomIndex, 1);
         }
-      }
 
-      // Assign tasks to random users
-      if (projectData.tasks) {
-        projectData.tasks.forEach(task => {
-          if (Math.random() > 0.5) {
-            const assignees = [];
-            const numAssignees = Math.floor(Math.random() * 3) + 1;
-            for (let i = 0; i < numAssignees; i++) {
-              const randomUser = users[Math.floor(Math.random() * users.length)];
-              if (!assignees.includes(randomUser._id)) {
-                assignees.push(randomUser._id);
+        // Assign tasks to random users
+        if (projectData.tasks) {
+          projectData.tasks.forEach(task => {
+            if (Math.random() > 0.3) { // 70% chance to assign task
+              const assignees = [];
+              const numAssignees = Math.floor(Math.random() * 3) + 1;
+              const availableUsers = users.filter(user => !assignees.includes(user._id));
+              
+              for (let i = 0; i < Math.min(numAssignees, availableUsers.length); i++) {
+                const randomIndex = Math.floor(Math.random() * availableUsers.length);
+                assignees.push(availableUsers[randomIndex]._id);
+                availableUsers.splice(randomIndex, 1);
               }
+              task.assignedTo = assignees;
             }
-            task.assignedTo = assignees;
-          }
+          });
+        }
+
+        // Assign createdBy to resources
+        if (projectData.resources) {
+          projectData.resources = projectData.resources.map(resource => ({
+            ...resource,
+            createdBy: owner._id
+          }));
+        }
+
+        const project = new Project({
+          ...projectData,
+          owner: owner._id,
+          team: team
         });
+
+        await project.save();
+        console.log(`Project created: ${project.name}`);
+      } catch (error) {
+        console.error(`Error creating project ${projectData.name}:`, error);
       }
-
-      // Assign createdBy to resources
-      if (projectData.resources) {
-        projectData.resources = projectData.resources.map(resource => ({
-          ...resource,
-          createdBy: owner._id // Using project owner as resource creator
-        }));
-      }
-
-      const project = new Project({
-        ...projectData,
-        owner: owner._id,
-        team: team
-      });
-
-      await project.save();
-      console.log(`Project created: ${project.name}`);
     }
 
     console.log('Project seeding complete');
-    mongoose.connection.close();
-    process.exit();
+    await mongoose.connection.close();
+    process.exit(0);
 
   } catch (error) {
     console.error('Error seeding projects:', error);
-    mongoose.connection.close();
+    await mongoose.connection.close();
     process.exit(1);
   }
 }
