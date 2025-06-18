@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const users = [
-  { name: 'admin', email: 'admin@zchpc.ac.zw', password: 'user@123' , role:"admin" },
+  { name: 'admin', email: 'superadmin@zchpc.ac.zw', password: 'user@123' , role:"admin" },
 
 ];
 
