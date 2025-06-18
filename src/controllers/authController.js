@@ -14,6 +14,7 @@ const authUser = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       avatar: user.avatar,
       token: generateToken(user._id)
     });
