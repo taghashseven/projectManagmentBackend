@@ -22,18 +22,29 @@ const createProject = async (req, res) => {
 // @route   GET /api/projects
 // @access  Private
 const getProjects = async (req, res) => {
-  const projects = await Project.find({
-    $or: [
-      { owner: req.user._id },
-      { team: req.user._id }
-    ]
-  })
-  .populate('owner', 'name email avatar')
-.populate('team', 'name email avatar')
-  .sort('-createdAt');
+  let projects;
+
+  if (req.user.role === 'admin') {
+    // Admin sees all projects
+    projects = await Project.find()
+      .populate('owner', 'name email avatar')
+      .populate('team', 'name email avatar')
+      .sort('-createdAt');
+  } else {
+    // Regular user sees only their own and their team's projects
+    projects = await Project.find({
+      $or: [
+        { owner: req.user._id },
+        { team: req.user._id }
+      ]
+    })
+      .populate('owner', 'name email avatar')
+      .populate('team', 'name email avatar')
+      .sort('-createdAt');
+  }
 
   res.json(projects);
-}
+};
 
 // @desc    Get single project
 // @route   GET /api/projects/:id
