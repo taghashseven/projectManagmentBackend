@@ -32,4 +32,10 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
   return enteredPassword === this.password
 };
 
+
+// remove method that delte user 
+userSchema.methods.remove = async function() {
+  await this.deleteOne();
+};
+
 export default mongoose.model('User', userSchema);

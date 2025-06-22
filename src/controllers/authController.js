@@ -15,6 +15,7 @@ const authUser = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      user : user,
       avatar: user.avatar,
       token: generateToken(user._id)
     });
@@ -88,9 +89,56 @@ const getUsers = async (req, res) => {
   }
 }
 
+// pattch user
+// @route   PATCH /api/auth/users/:id
+// @access  Private/Admin
+const updateUser = async (req, res) => {
+
+  console.log("update user :::", req.body);
+  
+  const { name, email, role } = req.body;
+
+  const user = await User.findById(req.params.id);
+
+  if (user) {
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.role = role || user.role;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+}
+
+// delete user 
+// @route   DELETE /api/auth/users/:id
+// @access  Private/Admin
+const deleteUser = async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (user) {
+    await  user.remove();
+    res.json({ message: 'User removed' });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+}
+
+
 export {
   authUser,
   registerUser,
   getUserProfile ,
-  getUsers
+  getUsers ,
+  updateUser , 
+  deleteUser
 };
